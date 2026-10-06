@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAC — Tourism AI Copilot</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+:root{--bg:#06101b;--bg2:#091827;--panel:#0c1b2c;--panel2:#10263d;--line:#1b3852;--text:#eff8ff;--muted:#91a8bd;--green:#43e0ad;--blue:#59aaff;--yellow:#ffc66d;--red:#ff7777}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 80% -10%,#123b55 0,#071522 35%,#06101b 75%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}.app{display:flex;min-height:100vh}.side{width:245px;position:fixed;inset:0 auto 0 0;border-right:1px solid var(--line);background:rgba(5,16,28,.92);padding:24px 16px;z-index:20}.brand{font-size:27px;font-weight:950;letter-spacing:-1px;padding:0 10px 26px}.brand i{color:var(--green);font-style:normal}.mini{font-size:10px;color:#66839b;letter-spacing:1.5px;padding:0 10px;margin:16px 0 8px}.navbtn{width:100%;display:flex;gap:11px;align-items:center;text-align:left;border:1px solid transparent;background:transparent;color:#9db1c5;padding:12px 12px;border-radius:11px;margin:3px 0}.navbtn:hover,.navbtn.active{background:#10243a;border-color:#1c3b56;color:#fff}.navbtn.active{color:var(--green)}.main{margin-left:245px;width:calc(100% - 245px);padding:30px 4.5% 60px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:35px}.location{color:var(--muted);font-size:13px}.live{border:1px solid #27624f;background:#0c2a22;color:#65edc0;padding:8px 11px;border-radius:99px;font-size:11px}.page{display:none;animation:fade .35s ease}.page.show{display:block}@keyframes fade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.hero{max-width:850px;padding:35px 0 25px}.eyebrow{color:var(--green);font-size:12px;font-weight:900;letter-spacing:2px;text-transform:uppercase}.hero h1{font-size:clamp(42px,6vw,76px);line-height:.96;letter-spacing:-4px;margin:13px 0}.hero h1 span{color:var(--green)}.hero p{font-size:17px;color:var(--muted);line-height:1.7;max-width:700px}.grid{display:grid;gap:17px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:linear-gradient(145deg,rgba(16,38,61,.92),rgba(9,24,40,.96));border:1px solid var(--line);border-radius:19px;padding:21px;box-shadow:0 18px 50px #0002}.card h2{margin:0 0 7px;font-size:19px}.muted{color:var(--muted);font-size:13px;line-height:1.55}.stat b{display:block;font-size:27px}.stat span{font-size:11px;color:var(--muted)}.accent{color:var(--green)}.blue{color:var(--blue)}.yellow{color:var(--yellow)}
+.btn{border:1px solid #2a4862;background:#10263d;color:#dceaf5;border-radius:11px;padding:11px 15px;font-weight:750}.btn:hover{border-color:#4c7291}.primary{background:linear-gradient(90deg,var(--green),#55baff);border:0;color:#04131a;font-weight:950}.wide{width:100%}.field{width:100%;padding:12px;border:1px solid #294660;border-radius:10px;background:#071625;color:white;outline:none}.field:focus{border-color:var(--green)}label{display:block;font-size:11px;color:#a9bbcc;font-weight:800;margin:14px 0 7px}.chips{display:flex;gap:7px;flex-wrap:wrap}.chip{font-size:11px;padding:8px 10px;border:1px solid #294660;background:#091a2c;color:#9eb2c5;border-radius:99px}.chip.on{border-color:#287a61;background:#10372f;color:#72e9c5}.topline{display:flex;justify-content:space-between;align-items:center;gap:15px}.pill{font-size:10px;padding:7px 9px;border-radius:99px;background:#10372f;color:#69e9c0;border:1px solid #21614f}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}.kpi .card{padding:17px}.icon{font-size:25px;margin-bottom:10px}
+.timeline{display:grid;gap:9px;margin-top:18px}.stop{display:grid;grid-template-columns:65px 1fr auto;gap:12px;align-items:center;padding:14px;background:#081827;border:1px solid #1a344d;border-radius:13px}.time{color:var(--green);font-weight:900;font-size:11px}.stop h3{font-size:14px;margin:0 0 4px}.stop p{margin:0;font-size:11px;color:var(--muted)}.tag{font-size:9px;color:#a9c0d4;border:1px solid #2b4761;border-radius:99px;padding:5px 8px}
+.place{overflow:hidden}.place .pic{height:130px;background:linear-gradient(135deg,#173f55,#0e273b);display:flex;align-items:center;justify-content:center;font-size:42px}.place .body{padding:15px}.place h3{margin:0 0 5px;font-size:15px}.place .body p{font-size:11px;color:var(--muted);line-height:1.5}.rating{color:var(--yellow);font-size:11px}
+.alert{padding:17px;border-radius:15px;border:1px solid #61481f;background:#21190d}.success{padding:17px;border-radius:15px;border:1px solid #21604f;background:#0c241f}.danger{padding:17px;border-radius:15px;border:1px solid #633033;background:#241114}
+.map{min-height:520px;border-radius:18px;border:1px solid #1d3c55;background:radial-gradient(circle at 60% 35%,#183c4e 0,#0a1c2b 42%,#07131f 70%);position:relative;overflow:hidden}.road{position:absolute;height:3px;background:#29536a;transform-origin:left center}.r1{width:85%;left:4%;top:32%;transform:rotate(18deg)}.r2{width:75%;left:18%;top:58%;transform:rotate(-26deg)}.r3{width:60%;left:10%;top:74%;transform:rotate(8deg)}.pin{position:absolute;background:var(--green);color:#03151a;border-radius:50% 50% 50% 0;width:25px;height:25px;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;box-shadow:0 0 20px #43e0ad88}.pin b{transform:rotate(45deg)}.p1{left:20%;top:57%}.p2{left:48%;top:31%}.p3{left:72%;top:63%}.realmap{height:100%;min-height:520px;border-radius:18px;overflow:hidden;z-index:1}.mapoverlay{position:absolute;z-index:1000;top:12px;left:12px;background:#071625e8;border:1px solid #29475e;padding:9px 11px;border-radius:10px;font-size:11px}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#0b1b2b;color:#eff8ff}.leaflet-popup-content{font-size:12px}.leaflet-control-attribution{font-size:9px}.maplabel{position:absolute;background:#091b2cdd;border:1px solid #29475e;padding:8px 10px;border-radius:9px;font-size:10px}.ml1{left:14%;top:64%}.ml2{left:43%;top:38%}.ml3{left:68%;top:70%}
+.chat{height:470px;display:flex;flex-direction:column}.messages{flex:1;overflow:auto;padding:5px}.msg{max-width:75%;padding:11px 13px;border-radius:13px;margin:9px 0;font-size:12px;line-height:1.5}.ai{background:#10283b;border:1px solid #23435c}.user{background:#103b33;border:1px solid #286c59;margin-left:auto}.chatbar{display:flex;gap:8px;border-top:1px solid var(--line);padding-top:13px}.chatbar input{flex:1}
+.footer{margin-top:50px;border-top:1px solid var(--line);padding-top:22px;color:#627b91;font-size:11px;text-align:center}
+@media(max-width:900px){.side{width:72px}.side .navtext,.side .mini{display:none}.brand{font-size:20px;padding:0 10px 25px}.main{margin-left:72px;width:calc(100% - 72px);padding:25px 3%}.g3,.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}.kpi{grid-template-columns:1fr 1fr}}@media(max-width:600px){.g3,.g4,.kpi{grid-template-columns:1fr}.hero h1{letter-spacing:-2px}.top{align-items:flex-start}.live{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+<div class="brand">TAC<span>•</span></div>
+<div class="mini">COPILOT</div>
+<button class="navbtn active" data-page="home">⌂ <span class="navtext">Overview</span></button>
+<button class="navbtn" data-page="copilot">✦ <span class="navtext">AI Copilot</span></button>
+<button class="navbtn" data-page="itinerary">◷ <span class="navtext">My Itinerary</span></button>
+<button class="navbtn" data-page="explore">⌖ <span class="navtext">Explore Local</span></button>
+<button class="navbtn" data-page="map">◉ <span class="navtext">Smart Map</span></button>
+<div class="mini">SMART LAYER</div>
+<button class="navbtn" data-page="adapt">⚡ <span class="navtext">Live Adaptation</span></button>
+<button class="navbtn" data-page="budget">₹ <span class="navtext">Budget & Deals</span></button>
+<button class="navbtn" data-page="safety">✓ <span class="navtext">Safety & Help</span></button>
+</aside>
+
+<main class="main">
+<div class="top"><div class="location">TAC / <b id="topPage">Overview</b></div><div class="live">● AI SYSTEM ONLINE</div></div>
+
+<section class="page show" id="home">
+<div class="hero"><div class="eyebrow">AI × Tourism</div><h1>Travel less like a tourist.<br><span>Experience more.</span></h1><p>TAC is your Tourism AI Copilot — it understands what you want, builds your trip, discovers local experiences, and adapts when the real world changes.</p><button class="btn primary" onclick="showPage('copilot')">✦ Start planning with TAC</button></div>
+<div class="kpi">
+<div class="card stat"><b>1</b><span>Personalized Copilot</span></div><div class="card stat"><b>25+</b><span>Demo destinations</span></div><div class="card stat"><b>1–30</b><span>Trip days</span></div><div class="card stat"><b>₹1L</b><span>Max demo budget</span></div><div class="card stat"><b>Live</b><span>Adaptive planning</span></div><div class="card stat"><b>Local</b><span>Community discovery</span></div>
+</div>
+<div class="card" style="margin:18px 0 22px">
+<div class="topline"><div><h2>🗺️ Prototype destination coverage</h2><div class="muted">South India + Amritsar · 25 example destinations</div></div><span class="pill">EXPANDED</span></div>
+<div class="chips" style="margin-top:15px">
+<span class="chip on">Karnataka · 5</span><span class="chip on">Kerala · 5</span><span class="chip on">Tamil Nadu · 5</span><span class="chip on">Telangana · 3</span><span class="chip on">Andhra Pradesh · 4</span><span class="chip on">Puducherry · 1</span><span class="chip on">Goa · 1</span><span class="chip on">Punjab · Amritsar</span>
+</div><div class="muted" style="margin-top:12px">Prototype coverage is based on destination examples from India Tourism / NIDHI+ and Tourism Ministry destination lists; live production data would come through verified APIs.</div></div>
+<div class="grid g3">
+<div class="card"><div class="icon">🧠</div><h2>Understands you</h2><p class="muted">Interests, time, budget, pace, food preferences and travel style become inputs to the AI.</p></div>
+<div class="card"><div class="icon">📍</div><h2>Understands the city</h2><p class="muted">Places, routes, local experiences, events, weather and context are combined into one travel layer.</p></div>
+<div class="card"><div class="icon">⚡</div><h2>Adapts with you</h2><p class="muted">A changed plan doesn't break the trip. TAC can swap stops and rebuild the route.</p></div>
+</div>
+</section>
+
+<section class="page" id="copilot">
+<div class="hero"><div class="eyebrow">AI COPILOT</div><h1>Tell TAC what<br><span>you want.</span></h1><p>Don't search ten apps. Describe the experience and let TAC turn it into a plan.</p></div>
+<div class="grid g2">
+<div class="card">
+<h2>Build my trip</h2><p class="muted">This is the core judge-demo flow.</p>
+<label>Destination</label>
+<select id="dest" class="field">
+<option value="Bengaluru">Bengaluru, Karnataka</option>
+<option value="Mysuru">Mysuru, Karnataka</option>
+<option value="Hampi">Hampi, Karnataka</option>
+<option value="Coorg">Coorg, Karnataka</option>
+<option value="Udupi">Udupi, Karnataka</option>
+<option value="Kochi">Kochi, Kerala</option>
+<option value="Munnar">Munnar, Kerala</option>
+<option value="Alappuzha">Alappuzha, Kerala</option>
+<option value="Varkala">Varkala, Kerala</option>
+<option value="Kozhikode">Kozhikode, Kerala</option>
+<option value="Chennai">Chennai, Tamil Nadu</option>
+<option value="Madurai">Madurai, Tamil Nadu</option>
+<option value="Ooty">Ooty, Tamil Nadu</option>
+<option value="Mahabalipuram">Mahabalipuram, Tamil Nadu</option>
+<option value="Thanjavur">Thanjavur, Tamil Nadu</option>
+<option value="Hyderabad">Hyderabad, Telangana</option>
+<option value="Warangal">Warangal, Telangana</option>
+<option value="Bhongir">Bhongir, Telangana</option>
+<option value="Vijayawada">Vijayawada, Andhra Pradesh</option>
+<option value="Visakhapatnam">Visakhapatnam, Andhra Pradesh</option>
+<option value="Araku">Araku Valley, Andhra Pradesh</option>
+<option value="Gandikota">Gandikota, Andhra Pradesh</option>
+<option value="Puducherry">Puducherry</option>
+<option value="Goa">Goa</option>
+<option value="Amritsar">Amritsar, Punjab</option>
+</select>
+<label>Time available <span style="color:var(--green)">· up to 30 days</span></label>
+<input id="duration" class="field" type="number" min="1" max="30" value="1" placeholder="1–30 days">
+<label>Trip budget <span style="color:var(--green)">· up to ₹1,00,000</span></label>
+<input id="bud" class="field" type="number" min="500" max="100000" step="500" value="2000" placeholder="₹500–₹1,00,000">
+<div class="muted" style="margin-top:7px">TAC can scale the itinerary from a one-day city plan to a 30-day multi-stop trip.</div>
+<label>I'm interested in</label><div class="chips" id="interest"><button class="chip on">Local food</button><button class="chip on">Culture</button><button class="chip">Hidden gems</button><button class="chip">Nature</button><button class="chip">Shopping</button><button class="chip">Nightlife</button></div>
+<label>Travel pace</label><select class="field"><option>Balanced</option><option>Slow & relaxed</option><option>Explore as much as possible</option></select>
+<button class="btn primary wide" style="margin-top:20px" onclick="generate()">✦ Generate personalized itinerary</button>
+</div>
+<div class="card chat">
+<div class="topline"><div><h2>TAC AI</h2><div class="muted">Your conversational travel copilot</div></div><span class="pill">CONTEXT AWARE</span></div>
+<div class="messages" id="messages"><div class="msg ai">Hi! I'm TAC. Tell me where you're going, how much time you have and what kind of experience you want.</div><div class="msg user">I'm in Bengaluru for one day. ₹2,000. I want local food and culture, but not only the famous tourist spots.</div><div class="msg ai">Perfect. I'll prioritize local experiences, keep the route efficient, and leave room for spontaneous discovery.</div></div>
+<div class="chatbar"><input class="field" id="chatinput" placeholder="Ask TAC anything…"><button class="btn" onclick="chat()">Send</button></div>
+</div>
+</div>
+</section>
+
+<section class="page" id="itinerary">
+<div class="hero"><div class="eyebrow">SMART ITINERARY</div><h1>Your day,<br><span>optimized.</span></h1><p>TAC balances distance, time, interests and budget instead of creating a random list of places.</p></div>
+<div class="card"><div class="topline"><div><h2>Bengaluru · 1 Day Local Experience</h2><div class="muted">Generated from your TAC profile</div></div><span class="pill">AI OPTIMIZED</span></div>
+<div class="kpi"><div class="card stat"><b>₹1.3–1.8K</b><span>Estimated spend</span></div><div class="card stat"><b>~8.5 km</b><span>Smart route</span></div><div class="card stat"><b>5</b><span>Experiences</span></div><div class="card stat"><b>Balanced</b><span>Travel pace</span></div></div>
+<div class="timeline">
+<div class="stop"><div class="time">09:00</div><div><h3>Lalbagh Botanical Garden</h3><p>Relaxed start · local atmosphere · nature</p></div><span class="tag">NATURE</span></div>
+<div class="stop"><div class="time">11:15</div><div><h3>Bengaluru Local Food Trail</h3><p>South Indian breakfast + neighborhood recommendations</p></div><span class="tag">FOOD</span></div>
+<div class="stop"><div class="time">13:00</div><div><h3>Cubbon Park & State Library</h3><p>Culture + green space + low travel time</p></div><span class="tag">CULTURE</span></div>
+<div class="stop"><div class="time">15:00</div><div><h3>KR Market Local Discovery</h3><p>Colorful market · local life · less conventional stop</p></div><span class="tag">LOCAL</span></div>
+<div class="stop"><div class="time">17:30</div><div><h3>VV Puram Food Street</h3><p>Street food + evening experience</p></div><span class="tag">FOOD</span></div>
+</div></div>
+</section>
+
+<section class="page" id="explore">
+<div class="hero"><div class="eyebrow">EXPLORE LOCAL</div><h1>Find the city<br><span>behind the postcard.</span></h1><p>TAC can surface far more than the headline landmarks — food streets, markets, museums, viewpoints, crafts, neighbourhoods, beaches, heritage sites and nature stops.</p></div>
+<div class="card" style="margin-bottom:17px"><div class="topline"><div><h2>📍 Local discovery database</h2><div class="muted">Showing places for <b id="exploreCity">Bengaluru</b> · select a destination in AI Copilot to change this.</div></div><span class="pill" id="placeCount">8+ LOCAL PLACES</span></div></div>
+<div class="grid g3" id="localGrid"></div>
+</section>
+
+<section class="page" id="map">
+<div class="hero"><div class="eyebrow">SMART MAP</div><h1>India, mapped.<br><span>Every decision connected.</span></h1><p>TAC uses a real interactive India map for the prototype. Select a destination and the map recentres on it, while destination markers show the wider tourism network.</p></div>
+<div class="grid g2"><div class="map" style="padding:0"><div id="tacMap" class="realmap"></div><div class="mapoverlay">🟢 TAC destinations · <b id="mapCity">Bengaluru</b> selected</div></div>
+<div class="card"><h2>Route intelligence</h2><p class="muted">The prototype now uses real map tiles rather than a decorative map background.</p><div class="success" style="margin-top:16px">✓ <b>Real map layer</b><br><span class="muted">OpenStreetMap-backed tiles with Leaflet interaction, zoom and pan.</span></div><div class="success" style="margin-top:10px">✓ <b>Destination network</b><br><span class="muted">Tourism destinations across South India and Amritsar are plotted as selectable markers.</span></div><div class="success" style="margin-top:10px">✓ <b>TAC route layer</b><br><span class="muted">The selected destination can show a simplified demo route between recommended stops.</span></div><button class="btn primary wide" style="margin-top:14px" onclick="focusSelectedCity()">⌖ Focus selected destination</button></div></div>
+</section>
+
+<section class="page" id="adapt">
+<div class="hero"><div class="eyebrow">LIVE ADAPTATION</div><h1>The trip changes.<br><span>TAC changes with it.</span></h1><p>This is the key “copilot” differentiator: the itinerary is not static.</p></div>
+<div class="grid g2"><div class="card"><h2>⚠️ Live situation detected</h2><div class="alert" style="margin-top:15px"><b>Traffic + crowd alert</b><p class="muted">Your next planned stop has unusually high crowd levels and travel time has increased.</p><button class="btn" onclick="adapt()">Simulate disruption</button></div></div>
+<div class="card"><h2>✦ TAC recommendation</h2><div id="adaptbox" class="success" style="margin-top:15px"><b>Plan currently stable</b><p class="muted">Run the simulation to show how TAC can re-plan the experience.</p></div></div></div>
+<div class="card" style="margin-top:17px"><h2>Other adaptive signals</h2><div class="grid g3" style="margin-top:14px"><div class="danger">🌧️ <b>Weather</b><br><span class="muted">Move outdoor stops or suggest indoor alternatives.</span></div><div class="alert">🚦 <b>Traffic</b><br><span class="muted">Recalculate travel time and reorder nearby stops.</span></div><div class="success">🎉 <b>Events</b><br><span class="muted">Surface relevant local events happening nearby.</span></div></div></div>
+</section>
+
+<section class="page" id="budget">
+<div class="hero"><div class="eyebrow">BUDGET INTELLIGENCE</div><h1>More experience.<br><span>Less guesswork.</span></h1><p>TAC keeps the trip within the user's spending preference and can surface value-oriented local experiences.</p></div>
+<div class="grid g2"><div class="card"><h2 id="budgetTitle">₹2,000 trip budget</h2><div class="kpi" style="grid-template-columns:1fr 1fr"><div class="card stat"><b id="budgetFood">₹650</b><span>Food</span></div><div class="card stat"><b id="budgetTransport">₹400</b><span>Transport</span></div><div class="card stat"><b id="budgetEntry">₹250</b><span>Entry / activities</span></div><div class="card stat"><b id="budgetBuffer">₹700</b><span>Flexible buffer</span></div></div><div style="height:10px;background:#152d43;border-radius:99px;overflow:hidden"><div style="height:100%;width:65%;background:linear-gradient(90deg,var(--green),var(--blue))"></div></div></div>
+<div class="card"><h2>Smart suggestions</h2><div class="success">💡 <b>Local breakfast</b><br><span class="muted">Save budget early and spend more on an experience later.</span></div><div class="success" style="margin-top:10px">💡 <b>Nearby alternatives</b><br><span class="muted">If a planned activity exceeds your budget, TAC can suggest a lower-cost option.</span></div><div class="success" style="margin-top:10px">💡 <b>Transparent estimates</b><br><span class="muted">Show users why the itinerary fits their budget.</span></div></div></div>
+</section>
+
+<section class="page" id="safety">
+<div class="hero"><div class="eyebrow">SAFETY & HELP</div><h1>Explore confidently.<br><span>Stay connected.</span></h1><p>A future TAC layer can add contextual safety information and fast access to help without interrupting the travel experience.</p></div>
+<div class="grid g3"><div class="card"><div class="icon">🛡️</div><h2>Safety context</h2><p class="muted">Surface practical context such as local emergency numbers, area guidance and relevant alerts.</p></div><div class="card"><div class="icon">📞</div><h2>Emergency help</h2><p class="muted">One-tap access to configured emergency contacts and official emergency services.</p></div><div class="card"><div class="icon">📍</div><h2>Share location</h2><p class="muted">A future feature could let travelers share their current trip context with trusted contacts.</p></div></div>
+<div class="card" style="margin-top:17px"><h2>TAC travel checklist</h2><div class="grid g2" style="margin-top:12px"><div>✓ Keep important documents accessible</div><div>✓ Save local emergency contacts</div><div>✓ Check weather before outdoor activities</div><div>✓ Keep a transport fallback</div></div></div>
+</section>
+
+<div class="footer">TAC — Tourism AI Copilot · Interactive ideathon prototype · Concept UI, simulated AI responses and demonstration data</div>
+</main>
+</div>
+
+<script>
+const pages=[...document.querySelectorAll('.page')], nav=[...document.querySelectorAll('.navbtn')];
+const names={home:'Overview',copilot:'AI Copilot',itinerary:'My Itinerary',explore:'Explore Local',map:'Smart Map',adapt:'Live Adaptation',budget:'Budget & Deals',safety:'Safety & Help'};
+function showPage(id){pages.forEach(p=>p.classList.toggle('show',p.id===id));nav.forEach(n=>n.classList.toggle('active',n.dataset.page===id));document.getElementById('topPage').textContent=names[id];window.scrollTo({top:0,behavior:'smooth'})}
+nav.forEach(n=>n.onclick=()=>showPage(n.dataset.page));
+document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
+const cityCoords={
+Bengaluru:[12.9716,77.5946],Mysuru:[12.2958,76.6394],Hampi:[15.3350,76.4600],Coorg:[12.3375,75.8069],Udupi:[13.3409,74.7421],
+Kochi:[9.9312,76.2673],Munnar:[10.0889,77.0595],Alappuzha:[9.4981,76.3388],Varkala:[8.7379,76.7163],Kozhikode:[11.2588,75.7804],
+Chennai:[13.0827,80.2707],Madurai:[9.9252,78.1198],Ooty:[11.4064,76.6932],Mahabalipuram:[12.6208,80.1945],Thanjavur:[10.7870,79.1378],
+Hyderabad:[17.3850,78.4867],Warangal:[17.9689,79.5941],Bhongir:[17.5153,78.8856],Vijayawada:[16.5062,80.6480],Visakhapatnam:[17.6868,83.2185],
+Araku:[18.3273,82.8770],Gandikota:[14.8135,78.2867],Puducherry:[11.9416,79.8083],Goa:[15.4909,73.8278],Amritsar:[31.6340,74.8723]
+};
+const localPlaces={
+Bengaluru:[['Lalbagh Botanical Garden','🌿','Nature'],['Cubbon Park','🌳','Nature'],['KR Market','🧺','Local'],['VV Puram Food Street','🍛','Food'],['Bangalore Palace','🏛️','Heritage'],['Visvesvaraya Museum','🔬','Culture'],['Tipu Sultan Summer Palace','🏰','Heritage'],['Basavanagudi Walk','🚶','Local'],['Bull Temple','🛕','Culture'],['Ulsoor Lake','🌊','Nature'],['Indian Music Experience','🎵','Culture'],['Nandi Hills day trip','⛰️','Nature']],
+Mysuru:[['Mysore Palace','🏛️','Heritage'],['Devaraja Market','🧺','Local'],['Karanji Lake','🌿','Nature'],['Chamundi Hill','⛰️','View'],['Jaganmohan Palace','🎨','Culture'],['Railway Museum','🚂','Culture'],['St Philomena’s Church','⛪','Heritage'],['Kukkarahalli Lake','🌳','Nature'],['Mysuru Zoo','🦁','Nature'],['Local sweets trail','🍬','Food']],
+Hampi:[['Hampi Bazaar','🪨','Heritage'],['Virupaksha Temple','🛕','Culture'],['Vittala Temple Complex','🏛️','Heritage'],['Hemakuta Hill','🌅','View'],['Anegundi Village','🏘️','Local'],['Mahanavami Dibba','🪨','Heritage'],['Royal Enclosure','🏛️','Heritage'],['Lotus Mahal','🌸','Culture'],['Elephant Stables','🐘','Heritage'],['Tungabhadra riverside','🌊','Nature']],
+Coorg:[['Coffee Estate Experience','☕','Local'],['Abbey Falls','💧','Nature'],['Raja’s Seat','🌄','View'],['Madikeri Fort','🏰','Heritage'],['Omkareshwara Temple','🛕','Culture'],['Mandalpatti Viewpoint','⛰️','View'],['Dubare Elephant Camp area','🌿','Nature'],['Talacauvery','🏔️','Nature'],['Kodava Food Trail','🍛','Food']],
+Udupi:[['Sri Krishna Temple Area','🛕','Culture'],['Udupi Breakfast Trail','🍽️','Food'],['Malpe Beach','🏖️','Nature'],['St. Mary’s Island','🏝️','Nature'],['Kaup Beach & Lighthouse','🌊','View'],['Manipal End Point','🌅','View'],['Anantheshwara Temple','🛕','Culture'],['Mattu Beach','🏖️','Local'],['Coastal seafood trail','🐟','Food']],
+Kochi:[['Fort Kochi Heritage Walk','🚶','Culture'],['Chinese Fishing Nets','🎣','Heritage'],['Mattancherry','🎨','Local'],['Jew Town','🛍️','Local'],['Mattancherry Dutch Palace','🏛️','Heritage'],['Santa Cruz Basilica','⛪','Culture'],['Marine Drive','🌅','View'],['Kumbalangi village','🌴','Local'],['Kerala food trail','🍛','Food']],
+Munnar:[['Tea Garden Walk','🍃','Nature'],['Tea Museum','🫖','Culture'],['Mattupetty','🏔️','Nature'],['Top Station','🌄','View'],['Eravikulam National Park','🦋','Nature'],['Kundala Lake','🚣','Nature'],['Echo Point','📣','View'],['Kolukkumalai','🌅','View'],['Local spice trail','🌿','Local']],
+Alappuzha:[['Alappuzha Beach','🏖️','Nature'],['Backwater Experience','🚤','Experience'],['Canal-side Walk','🚶','Local'],['Kerala Sadya','🍛','Food'],['Revi Karunakaran Museum','🎨','Culture'],['Kakkathuruthu','🌴','Local'],['Kuttanad village route','🌾','Local'],['Sunset backwaters','🌅','View']],
+Varkala:[['Varkala Cliff Walk','🌊','Nature'],['Papanasam Beach','🏖️','Nature'],['Janardhana Temple Area','🛕','Culture'],['Cliff Sunset','🌅','View'],['Varkala local craft shops','🧺','Local'],['Black Sand Beach','🏖️','Nature'],['Kappil Beach','🌴','Nature'],['Kappil Lake','🚣','Nature']],
+Kozhikode:[['Kozhikode Beach','🏖️','Nature'],['SM Street','🛍️','Local'],['Mananchira Square','🌳','Culture'],['Kadalundy Bird Sanctuary','🦜','Nature'],['Beypore','⛵','Local'],['Sarovaram Bio Park','🌿','Nature'],['Tali Temple','🛕','Culture'],['Mishkal Masjid','🕌','Heritage'],['Malabar food trail','🍛','Food']],
+Chennai:[['Marina Beach','🏖️','Nature'],['Mylapore Walk','🚶','Local'],['Kapaleeshwarar Temple Area','🛕','Culture'],['Fort St George','🏰','Heritage'],['Government Museum','🎨','Culture'],['Besant Nagar','🌅','View'],['San Thome Basilica','⛪','Culture'],['George Town food walk','🍛','Food'],['Mahabalipuram day trip','🗿','Heritage']],
+Madurai:[['Meenakshi Temple Area','🛕','Heritage'],['Madurai Market Walk','🧺','Local'],['Thirumalai Nayakkar Palace','🏛️','Heritage'],['Evening Street Food','🍛','Food'],['Gandhi Memorial Museum','📚','Culture'],['Vandiyur Mariamman Teppakulam','🌊','Culture'],['Thiruparankundram','🛕','Culture'],['Banana Market','🍌','Local']],
+Ooty:[['Botanical Garden','🌿','Nature'],['Tea Estate','🍃','Local'],['Ooty Lake','🚣','Nature'],['Doddabetta','⛰️','View'],['Pykara Waterfalls','💧','Nature'],['Pykara Lake','🌊','Nature'],['Rose Garden','🌹','Nature'],['Mukurthi National Park area','🏔️','Nature'],['Nilgiri food trail','🍛','Food']],
+Mahabalipuram:[['Shore Temple','🛕','Heritage'],['Pancha Rathas','🪨','Heritage'],['Arjuna’s Penance','🎨','Culture'],['Krishna’s Butter Ball','🪨','Local'],['Sculpture Walk','🗿','Local'],['Mahabalipuram Beach','🏖️','Nature'],['Lighthouse','💡','View'],['Coastal Tamil lunch','🍛','Food']],
+Thanjavur:[['Brihadisvara Temple','🛕','Heritage'],['Royal Palace Area','🏛️','Heritage'],['Thanjavur Art Trail','🎨','Local'],['Saraswathi Mahal Library','📚','Culture'],['Schwartz Church','⛪','Heritage'],['Bronze craft discovery','🎨','Local'],['Tamil lunch trail','🍛','Food']],
+Hyderabad:[['Charminar Area','🕌','Heritage'],['Laad Bazaar','🛍️','Local'],['Golconda Fort','🏰','Heritage'],['Hussain Sagar','🌊','View'],['Salar Jung Museum','🎨','Culture'],['Chowmahalla Palace','🏛️','Heritage'],['Qutb Shahi Tombs','🪨','Heritage'],['Shilparamam','🎭','Local'],['Hyderabadi food trail','🍛','Food']],
+Warangal:[['Warangal Fort','🏰','Heritage'],['Thousand Pillar Temple','🛕','Culture'],['Ramappa Temple','🏛️','Heritage'],['Ramappa Lake','🌊','Nature'],['Bhadrakali Temple','🛕','Culture'],['Kakatiya Musical Garden','🌿','Local'],['Pakhal Lake','🚣','Nature']],
+Bhongir:[['Bhongir Fort','🏰','Heritage'],['Bhongir Hill View','⛰️','View'],['Village Experience','🏘️','Local'],['Regional Food Stop','🍛','Food'],['Yadadri Temple route','🛕','Culture'],['Kotepally Reservoir','🌊','Nature']],
+Vijayawada:[['Kanaka Durga Temple Area','🛕','Culture'],['Krishna Riverfront','🌊','View'],['Undavalli Caves','🪨','Heritage'],['Bhavani Island','🏝️','Nature'],['Prakasam Barrage','🌉','View'],['Amaravati heritage route','🏛️','Heritage'],['Andhra food trail','🍛','Food']],
+Visakhapatnam:[['RK Beach','🏖️','Nature'],['Kailasagiri','⛰️','View'],['Submarine Museum','⚓','Culture'],['Dolphin’s Nose','🌊','View'],['Yarada Beach','🏖️','Nature'],['Simhachalam Temple','🛕','Culture'],['Borra Caves day trip','🪨','Nature'],['Andhra seafood trail','🍛','Food']],
+Araku:[['Araku Valley View','🌄','Nature'],['Coffee Experience','☕','Local'],['Tribal Food Experience','🍛','Food'],['Borra Caves','🪨','Nature'],['Katiki Waterfalls','💧','Nature'],['Padmapuram Gardens','🌿','Nature'],['Lambasingi extension','🌄','Nature']],
+Gandikota:[['Gandikota Fort','🏰','Heritage'],['Gandikota Gorge','🏜️','View'],['Canyon Sunset','🌅','View'],['Old Town Walk','🚶','Local'],['Madhavaraya Temple','🛕','Culture'],['Jamia Masjid','🕌','Heritage'],['Andhra lunch trail','🍛','Food']],
+Puducherry:[['White Town Walk','🚶','Culture'],['Promenade','🌊','Nature'],['Auroville Area','🌿','Local'],['Paradise Beach','🏖️','Nature'],['Puducherry Museum','🎨','Culture'],['Manakula Vinayagar Temple','🛕','Culture'],['French Institute area','🏛️','Culture'],['Tamil-French food trail','🍛','Food']],
+Goa:[['Panaji Heritage Walk','🚶','Culture'],['Fontainhas','🏘️','Local'],['Local Goan Food Trail','🍛','Food'],['Basilica of Bom Jesus area','⛪','Heritage'],['Goa State Museum area','🎨','Culture'],['Dona Paula','🌊','View'],['Fontainhas art walk','🎨','Local'],['Beach experience','🏖️','Nature']],
+Amritsar:[['Golden Temple','🛕','Culture'],['Jallianwala Bagh','📜','Heritage'],['Partition Museum','🏛️','Culture'],['Heritage Street','🚶','Local'],['Gobindgarh Fort','🏰','Heritage'],['Sri Durgiana Temple','🛕','Culture'],['Sadda Pind','🏘️','Local'],['Amritsari Food Trail','🍛','Food'],['Attari–Wagah Border','🇮🇳','Experience'],['Ram Bagh Palace','🏛️','Heritage'],['Pul Kanjri','🌿','Local'],['Khalsa College','🏫','Heritage']]
+};
+
+const destinationData = {
+Bengaluru:{state:"Karnataka",emoji:"🌆",budget:"₹1.3–1.8K",stops:[["09:00","Lalbagh Botanical Garden","Nature + local atmosphere","NATURE"],["11:15","Bengaluru Local Food Trail","South Indian breakfast + neighborhood food","FOOD"],["13:00","Cubbon Park & State Library","Culture + green space","CULTURE"],["15:00","KR Market Local Discovery","Everyday city life + local market","LOCAL"],["17:30","VV Puram Food Street","Street food + evening experience","FOOD"]]},
+Mysuru:{state:"Karnataka",emoji:"🏛️",budget:"₹1.2–1.7K",stops:[["09:00","Mysore Palace","Heritage + architecture","CULTURE"],["11:30","Devaraja Market","Local life + food","LOCAL"],["13:30","Mysuru Food Trail","Local specialties","FOOD"],["15:30","Karanji Lake","Relaxed nature stop","NATURE"],["18:00","Chamundi Hill","City views + sunset","VIEW"]]},
+Hampi:{state:"Karnataka",emoji:"🪨",budget:"₹1.4–2.0K",stops:[["08:00","Hampi Bazaar","Historic core + local life","HERITAGE"],["10:00","Virupaksha Temple","Architecture + history","CULTURE"],["12:00","Local Karnataka Lunch","Regional food","FOOD"],["15:00","Vittala Temple Complex","Heritage experience","HERITAGE"],["17:30","Hemakuta Hill","Sunset viewpoint","VIEW"]]},
+Coorg:{state:"Karnataka",emoji:"🌿",budget:"₹1.8–2.5K",stops:[["08:30","Coffee Estate Experience","Local coffee culture","LOCAL"],["11:00","Abbey Falls","Nature","NATURE"],["13:00","Kodava Food Experience","Local cuisine","FOOD"],["15:30","Raja's Seat","Views","VIEW"],["17:30","Madikeri Local Walk","Culture + local shops","LOCAL"]]},
+Udupi:{state:"Karnataka",emoji:"🥥",budget:"₹1.2–1.8K",stops:[["08:30","Sri Krishna Temple Area","Culture + heritage","CULTURE"],["10:30","Udupi Breakfast Trail","Local cuisine","FOOD"],["13:00","Malpe Beach","Coast + relaxation","NATURE"],["15:30","St. Mary's Island","Island experience","NATURE"],["18:00","Local Coastal Dinner","Regional food","FOOD"]]},
+
+Kochi:{state:"Kerala",emoji:"⛵",budget:"₹1.5–2.2K",stops:[["09:00","Fort Kochi Heritage Walk","Colonial + local culture","CULTURE"],["11:00","Chinese Fishing Nets","Coastal heritage","HERITAGE"],["13:00","Kerala Food Trail","Regional cuisine","FOOD"],["15:00","Mattancherry","Art + local markets","LOCAL"],["17:30","Marine Drive Sunset","Waterfront","VIEW"]]},
+Munnar:{state:"Kerala",emoji:"🍃",budget:"₹1.8–2.6K",stops:[["08:00","Tea Garden Walk","Tea culture + nature","NATURE"],["10:30","Tea Museum","Local history","CULTURE"],["12:30","Kerala Lunch","Regional food","FOOD"],["14:30","Mattupetty","Mountain scenery","NATURE"],["17:00","Top Station View","Sunset + valley views","VIEW"]]},
+Alappuzha:{state:"Kerala",emoji:"🚤",budget:"₹1.7–2.5K",stops:[["08:30","Alappuzha Beach","Coast","NATURE"],["10:30","Canal-side Walk","Local life","LOCAL"],["12:30","Kerala Sadya","Local cuisine","FOOD"],["14:30","Backwater Experience","Waterways","EXPERIENCE"],["17:30","Sunset by the Backwaters","Views","VIEW"]]},
+Varkala:{state:"Kerala",emoji:"🌊",budget:"₹1.4–2.0K",stops:[["08:30","Varkala Cliff Walk","Coastal views","NATURE"],["10:30","Janardhana Temple Area","Culture","CULTURE"],["12:30","Kerala Seafood Trail","Food","FOOD"],["15:00","Papanasam Beach","Coast","NATURE"],["17:30","Cliff Sunset","View","VIEW"]]},
+Kozhikode:{state:"Kerala",emoji:"🥘",budget:"₹1.2–1.8K",stops:[["09:00","Kozhikode Beach","Coast","NATURE"],["11:00","SM Street Food Walk","Local food + shopping","FOOD"],["13:00","Malabar Lunch","Regional cuisine","FOOD"],["15:00","Local Heritage Walk","Culture","CULTURE"],["17:30","Sunset Waterfront","Views","VIEW"]]},
+
+Chennai:{state:"Tamil Nadu",emoji:"🌊",budget:"₹1.3–1.9K",stops:[["08:30","Marina Beach","Coast + local life","NATURE"],["10:30","Kapaleeshwarar Temple Area","Heritage","CULTURE"],["12:30","Tamil Food Trail","Local cuisine","FOOD"],["15:00","Mylapore Walk","Culture + local shops","LOCAL"],["17:30","Besant Nagar Sunset","Coast","VIEW"]]},
+Madurai:{state:"Tamil Nadu",emoji:"🛕",budget:"₹1.1–1.7K",stops:[["08:00","Meenakshi Temple Area","Heritage","CULTURE"],["10:30","Madurai Market Walk","Local life","LOCAL"],["12:30","Tamil Lunch Experience","Cuisine","FOOD"],["15:00","Thirumalai Nayakkar Palace","Architecture","HERITAGE"],["17:30","Evening Street Food","Food + culture","FOOD"]]},
+Ooty:{state:"Tamil Nadu",emoji:"🏔️",budget:"₹1.6–2.4K",stops:[["08:30","Ooty Botanical Garden","Nature","NATURE"],["10:30","Tea Estate","Local tea culture","LOCAL"],["12:30","Nilgiri Food Stop","Food","FOOD"],["15:00","Ooty Lake","Relaxed activity","NATURE"],["17:00","Doddabetta Viewpoint","Views","VIEW"]]},
+Mahabalipuram:{state:"Tamil Nadu",emoji:"🗿",budget:"₹1.2–1.8K",stops:[["08:30","Shore Temple","Heritage","CULTURE"],["10:30","Pancha Rathas","Architecture","HERITAGE"],["12:30","Coastal Tamil Lunch","Food","FOOD"],["14:30","Local Sculpture Walk","Craft + culture","LOCAL"],["17:00","Beach Sunset","View","VIEW"]]},
+Thanjavur:{state:"Tamil Nadu",emoji:"🎨",budget:"₹1.2–1.8K",stops:[["09:00","Brihadisvara Temple","Heritage","CULTURE"],["11:00","Thanjavur Art Trail","Local craft","LOCAL"],["13:00","Tamil Lunch","Food","FOOD"],["15:00","Royal Palace Area","History","HERITAGE"],["17:00","Local Craft Discovery","Culture","LOCAL"]]},
+
+Hyderabad:{state:"Telangana",emoji:"🏰",budget:"₹1.3–1.9K",stops:[["09:00","Charminar Area","Heritage + local life","CULTURE"],["11:00","Laad Bazaar Walk","Local market","LOCAL"],["13:00","Hyderabadi Food Trail","Cuisine","FOOD"],["15:00","Golconda Fort","History","HERITAGE"],["18:00","Hussain Sagar Sunset","View","VIEW"]]},
+Warangal:{state:"Telangana",emoji:"🏯",budget:"₹1.2–1.8K",stops:[["09:00","Warangal Fort","Heritage","HERITAGE"],["11:30","Thousand Pillar Temple","Culture","CULTURE"],["13:00","Telangana Food Stop","Food","FOOD"],["15:00","Ramappa Temple Route","Architecture","CULTURE"],["17:30","Local Sunset Stop","View","VIEW"]]},
+Bhongir:{state:"Telangana",emoji:"⛰️",budget:"₹1.0–1.6K",stops:[["08:30","Bhongir Fort","Heritage + views","HERITAGE"],["11:00","Local Breakfast","Food","FOOD"],["13:00","Village Experience","Local life","LOCAL"],["15:00","Regional Food Stop","Cuisine","FOOD"],["17:00","Hill View","Nature","VIEW"]]},
+
+Vijayawada:{state:"Andhra Pradesh",emoji:"🛕",budget:"₹1.1–1.7K",stops:[["09:00","Kanaka Durga Temple Area","Culture","CULTURE"],["11:00","Krishna Riverfront","Views","NATURE"],["13:00","Andhra Food Trail","Local cuisine","FOOD"],["15:00","Undavalli Caves","Heritage","HERITAGE"],["17:30","River Sunset","View","VIEW"]]},
+Visakhapatnam:{state:"Andhra Pradesh",emoji:"🌊",budget:"₹1.5–2.2K",stops:[["08:30","RK Beach","Coast","NATURE"],["10:30","Kailasagiri","Views","VIEW"],["13:00","Andhra Seafood Trail","Food","FOOD"],["15:00","Submarine Museum Area","Culture","CULTURE"],["17:30","Coastal Sunset","View","VIEW"]]},
+Araku:{state:"Andhra Pradesh",emoji:"🌄",budget:"₹1.8–2.7K",stops:[["08:00","Araku Valley View","Nature","NATURE"],["10:30","Coffee Experience","Local culture","LOCAL"],["12:30","Tribal Food Experience","Food + culture","FOOD"],["15:00","Borra Caves","Nature","NATURE"],["17:30","Valley Sunset","View","VIEW"]]},
+Gandikota:{state:"Andhra Pradesh",emoji:"🏜️",budget:"₹1.5–2.2K",stops:[["08:30","Gandikota Fort","Heritage","HERITAGE"],["10:30","Gorge Viewpoint","Nature","VIEW"],["12:30","Andhra Lunch","Food","FOOD"],["14:30","Old Town Walk","Local culture","LOCAL"],["17:30","Canyon Sunset","Golden-hour viewpoint","VIEW"]]},
+
+Puducherry:{state:"Puducherry",emoji:"🚲",budget:"₹1.3–2.0K",stops:[["08:30","White Town Walk","Architecture + culture","CULTURE"],["10:30","Promenade","Coast","NATURE"],["12:30","Tamil-French Food Trail","Cuisine","FOOD"],["15:00","Auroville Area","Experience","LOCAL"],["17:30","Promenade Sunset","View","VIEW"]]},
+Goa:{state:"Goa",emoji:"🏖️",budget:"₹1.8–2.8K",stops:[["09:00","Panaji Heritage Walk","Culture","CULTURE"],["11:00","Local Goan Food Trail","Cuisine","FOOD"],["13:30","Fontainhas","Local heritage","LOCAL"],["16:00","Beach Experience","Coast","NATURE"],["18:00","Sunset View","VIEW","VIEW"]]},
+Amritsar:{state:"Punjab",emoji:"🛕",budget:"₹1.2–1.9K",stops:[["08:00","Golden Temple","Heritage + spirituality","CULTURE"],["10:30","Jallianwala Bagh","History","HERITAGE"],["12:00","Amritsari Food Trail","Local cuisine","FOOD"],["15:00","Partition Museum","History + culture","CULTURE"],["17:00","Attari–Wagah Border Experience","Cultural landmark","EXPERIENCE"]]}
+};
+
+let selectedCity='Bengaluru';
+let tacMap=null, mapLayer=null, routeLayer=null;
+function money(n){return '₹'+Math.round(n).toLocaleString('en-IN')}
+function getDays(){let n=parseInt(document.getElementById('duration').value,10)||1;return Math.min(30,Math.max(1,n))}
+function getBudget(){let n=parseInt(document.getElementById('bud').value,10)||2000;return Math.min(100000,Math.max(500,n))}
+function renderLocalPlaces(city){
+ const list=localPlaces[city]||localPlaces.Bengaluru; document.getElementById('exploreCity').textContent=city; document.getElementById('placeCount').textContent=list.length+' LOCAL PLACES';
+ document.getElementById('localGrid').innerHTML=list.map((p,i)=>`<div class="card place"><div class="pic">${p[1]}</div><div class="body"><h3>${p[0]}</h3><div class="rating">★ ${(4.5+(i%5)*.1).toFixed(1)} · ${p[2]}</div><p>TAC local-discovery candidate for ${city}, ranked using the traveler's interests, time, route and budget.</p><button class="btn wide" onclick="addPlace('${p[0].replace(/'/g,"\\'")}')">＋ Add to trip</button></div></div>`).join('');
+}
+function addPlace(name){const m=document.getElementById('messages');m.insertAdjacentHTML('beforeend',`<div class="msg ai">✦ Added <b>${name}</b> to your ${selectedCity} discovery shortlist.</div>`);showPage('copilot')}
+function generate(){
+ selectedCity=document.getElementById('dest').value; const city=selectedCity, d=destinationData[city]||destinationData.Bengaluru, days=getDays(), budget=getBudget();
+ const places=localPlaces[city]||[]; const daily=Math.max(500,Math.round(budget/days));
+ const totalStops=Math.min(30*5, Math.max(5, days*5));
+ let rows=[]; for(let i=0;i<totalStops;i++){const p=places[i%places.length]; const day=Math.floor(i/5)+1; const times=['08:00','10:00','12:30','15:00','17:30']; rows.push(`<div class="stop"><div class="time">D${day} · ${times[i%5]}</div><div><h3>${p[0]}</h3><p>${p[2]} · ${city} local discovery</p></div><span class="tag">${p[2].toUpperCase()}</span></div>`)}
+ showPage('itinerary');
+ const card=document.querySelector('#itinerary .card');
+ card.innerHTML=`<div class="topline"><div><h2>${d.emoji} ${city} · ${d.state} · ${days}-Day AI Plan</h2><div class="muted">${days===1?'Day trip':'Multi-day trip'} · ${places.length}+ local discovery candidates · budget-aware planning</div></div><span class="pill">AI OPTIMIZED</span></div>
+ <div class="kpi"><div class="card stat"><b>${money(budget)}</b><span>Trip budget</span></div><div class="card stat"><b>${money(daily)}</b><span>Budget / day target</span></div><div class="card stat"><b>${totalStops}</b><span>Planned experiences</span></div><div class="card stat"><b>${days}/30</b><span>Trip days</span></div></div>
+ <div class="timeline">${rows}</div>
+ <div class="success" style="margin-top:14px">✦ <b>TAC insight:</b> The demo scales the same decision engine from 1 to 30 days and ₹500–₹1,00,000. Production would replace demo place data with verified live APIs, availability and routing signals.</div>`;
+ renderLocalPlaces(city); updateBudget(budget,days); updateMap(city); document.getElementById('mapCity').textContent=city;
+ document.getElementById('messages').insertAdjacentHTML('beforeend',`<div class="msg ai">✦ I generated a ${days}-day ${city} plan for ${money(budget)}. I also loaded ${places.length}+ local discovery options and mapped the destination.</div>`);
+}
+function updateBudget(budget,days){const food=Math.round(budget*.32), transport=Math.round(budget*.22), entry=Math.round(budget*.18), buffer=budget-food-transport-entry; document.getElementById('budgetTitle').textContent=money(budget)+' trip budget'; document.getElementById('budgetFood').textContent=money(food);document.getElementById('budgetTransport').textContent=money(transport);document.getElementById('budgetEntry').textContent=money(entry);document.getElementById('budgetBuffer').textContent=money(buffer);}
+function initMap(){
+ if(tacMap)return; tacMap=L.map('tacMap',{scrollWheelZoom:true}).setView([22.5,79],5); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(tacMap); mapLayer=L.layerGroup().addTo(tacMap); routeLayer=L.layerGroup().addTo(tacMap); updateMap(selectedCity); setTimeout(()=>tacMap.invalidateSize(),150);
+}
+function updateMap(city){
+ if(!tacMap)return; mapLayer.clearLayers(); routeLayer.clearLayers();
+ Object.entries(cityCoords).forEach(([name,coords])=>{const selected=name===city; const marker=L.circleMarker(coords,{radius:selected?10:6,weight:selected?3:1,fillOpacity:.85}).addTo(mapLayer); marker.bindPopup(`<b>${name}</b><br>${selected?'Selected TAC destination':'Tourism network destination'}`); if(selected) marker.openPopup();});
+ const center=cityCoords[city]||cityCoords.Bengaluru; tacMap.setView(center, city==='Bengaluru'||city==='Amritsar'?11:10);
+ const places=localPlaces[city]||[]; const routePlaces=places.slice(0,Math.min(5,places.length));
+ const offsets=[[0.015,0.02],[-0.012,0.028],[0.018,-0.018],[-0.02,-0.01],[0.008,-0.03]]; const pts=routePlaces.map((p,i)=>[center[0]+offsets[i][0],center[1]+offsets[i][1]]);
+ pts.forEach((pt,i)=>L.marker(pt).addTo(routeLayer).bindPopup(`<b>${i+1}. ${routePlaces[i][0]}</b><br>${routePlaces[i][2]}`)); if(pts.length>1)L.polyline(pts,{weight:4,dashArray:'8 8'}).addTo(routeLayer);
+ document.getElementById('mapCity').textContent=city;
+}
+function focusSelectedCity(){initMap();updateMap(selectedCity);showPage('map')}
+
+function chat(){const input=document.getElementById('chatinput'),v=input.value.trim();if(!v)return;const m=document.getElementById('messages');m.insertAdjacentHTML('beforeend',`<div class="msg user">${v.replace(/[<>&]/g,s=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[s]))}</div>`);input.value='';setTimeout(()=>m.insertAdjacentHTML('beforeend','<div class="msg ai">✦ Based on your preferences, I would adjust the route and keep the experience within your budget. In the full product, I would combine live place, map, weather and event data before making this recommendation.</div>'),450)}
+function adapt(){document.getElementById('adaptbox').innerHTML='<b>✓ Itinerary adapted</b><p class="muted">TAC replaced the crowded stop with a nearby local experience, reduced travel time and preserved your food + culture preferences.</p><button class="btn primary" onclick="showPage(\'itinerary\')">View updated itinerary →</button>'}
+</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>renderLocalPlaces('Bengaluru'); updateBudget(2000,1);</script>
+</body>
+</html>
